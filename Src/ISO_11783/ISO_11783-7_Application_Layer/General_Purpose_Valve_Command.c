@@ -24,7 +24,7 @@ ENUM_J1939_STATUS_CODES ISO_11783_Send_General_Purpose_Valve_Command(J1939 *j193
 	data[3] = extended_flow;
 	data[4] = extended_flow >> 8;
 	data[5] = data[6] = data[7] = 0xFF;								 /* All reserved */
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*

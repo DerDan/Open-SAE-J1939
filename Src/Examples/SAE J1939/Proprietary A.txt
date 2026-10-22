@@ -2,7 +2,7 @@
  * Main.c
  *
  *  Created on: 25 December 2023
- *      Author: Daniel Mårtensson
+ *      Author: Daniel MÃ¥rtensson
  */
 
 #include <stdio.h>
@@ -15,6 +15,10 @@ int main() {
 	/* Create our J1939 structure with two ECU */
 	J1939 j1939_1 = { 0 };
 	J1939 j1939_2 = { 0 };
+	CAN_Context can_context;
+	CAN_Context_Init(&can_context);
+	j1939_1.can_context = &can_context;
+	j1939_2.can_context = &can_context;
 
 	/* Important to sent all non-address to 0xFF - Else we cannot use ECU address 0x0 */
 	uint8_t i;

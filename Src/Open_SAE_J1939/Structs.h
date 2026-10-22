@@ -31,7 +31,7 @@
 #define MAX_PROPRIETARY_B 60U
 #endif
 #ifndef MAX_PROPRIETARY_B_PGNS
-#define MAX_PROPRIETARY_B_PGNS 2U					/* The maximum number of PGNs that the ECUs will be aware of. 
+#define MAX_PROPRIETARY_B_PGNS 2U					/* The maximum number of PGNs that the ECUs will be aware of.
 													 * If proprietary B PGNs are not used, set this to 0 to save memory */
 #endif
 
@@ -53,7 +53,7 @@ struct TP_CM {
 	/* RTS */
 	uint16_t total_message_size_being_transmitted;	/* Total bytes our complete message includes - 9 to 1785 */
 	uint8_t number_of_packages_being_transmitted;	/* How many times we are going to send packages via TP_DT - 2 to 224 because 1785/8 is 224 rounded up */
-	
+
 	/* CTS */
 	uint8_t number_of_packets_to_be_transmitted;	/* number of packages which has to be transmitted */
 	uint8_t next_packet_number_transmitted;			/* Next packet number we want to have from the transmitter */
@@ -257,8 +257,51 @@ typedef struct {
 	struct Vehicle_Identification this_vehicle_identification;
 } Information_this_ECU;
 
+/* Enum for SAE J1939 application information */
+typedef enum {
+  IDENTIFICATION_SOFTWARE,
+  IDENTIFICATION_ECU,
+  IDENTIFICATION_COMPONENT,
+  PROPRIETARY_A,
+  PROPRIETARY_B
+} SAE_Application_Info_Type;
+
+/* This struct is used to signal application information sent from another ECU over SAE J1939 */
+typedef struct{
+  SAE_Application_Info_Type type;
+  union {
+    Software_identification *software_identification;
+    ECU_identification *ecu_identification;
+    Component_identification *component_identification;
+    Proprietary_A *proprietary_a;
+    Proprietary_B *proprietary_b;
+  };
+} SAE_Application_Info;
+
+typedef struct J1939 J1939;
+typedef struct CAN_Context CAN_Context;
+
+struct CAN_Context {
+	uint32_t Tag;
+
+	void (*Callback_Function_Send)(J1939 *j1939, uint32_t ID, uint8_t DLC, uint8_t data[]);
+	void (*Callback_Function_Read)(J1939 *j1939, uint32_t *ID, uint8_t data[], bool *is_new_message);
+	void (*Callback_Function_Traffic)(J1939 *j1939, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_transmit);
+	void (*Callback_Function_Delay_ms)(J1939 *j1939, uint8_t milliseconds);
+
+	bool internal_new_message[256];
+	uint8_t internal_data[256 * 8];
+	uint8_t internal_DLC[256];
+	uint32_t internal_ID[256];
+	uint8_t buffer_index_transmit;
+	uint8_t buffer_index_receive;
+
+	int can_socket;
+	bool can_initialized;
+};
+
 /* This struct is used for handling J1939 information */
-typedef struct {
+struct J1939 {
 	/* Latest CAN message */
 	uint32_t ID;									/* This is the CAN bus ID */
 	uint8_t data[8];								/* This is the CAN bus data */
@@ -299,27 +342,9 @@ typedef struct {
 	struct Auxiliary_valve_measured_position this_auxiliary_valve_measured_position[16];
 	struct General_purpose_valve_estimated_flow this_general_purpose_valve_estimated_flow;
 
-} J1939;
+	CAN_Context *can_context;
+	void (*Callback_Function_Application)(J1939 *j1939, SAE_Application_Info info);
 
-/* Enum for SAE J1939 application information */
-typedef enum {
-  IDENTIFICATION_SOFTWARE,
-  IDENTIFICATION_ECU,
-  IDENTIFICATION_COMPONENT,
-  PROPRIETARY_A,
-  PROPRIETARY_B
-} SAE_Application_Info_Type;
-
-/* This struct is used to signal application information sent from another ECU over SAE J1939 */
-typedef struct{
-  SAE_Application_Info_Type type;
-  union {
-    Software_identification *software_identification;
-    ECU_identification *ecu_identification;
-    Component_identification *component_identification;
-    Proprietary_A *proprietary_a;
-    Proprietary_B *proprietary_b;
-  };
-} SAE_Application_Info;
+};
 
 #endif /* OPEN_SAE_J1939_OPEN_SAE_J1939_STRUCTS_H_ */

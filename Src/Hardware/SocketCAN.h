@@ -1,6 +1,8 @@
 #ifndef OPENSAE_SOCKETCAN_H
 #define OPENSAE_SOCKETCAN_H
 
+#include "../Open_SAE_J1939/Structs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,11 +16,10 @@ extern "C" {
 #define SOCKETCAN_RCVTIMEOUT 1
 #endif
 
-#include <stdint.h>
-
-int socketcan_receive(uint32_t *ID, uint8_t data[], bool *is_new_message);
-int socketcan_transmit(uint32_t ID, uint8_t data[], uint8_t DLC);
-int socketcan_setup(const char *ifname);
+int socketcan_receive(CAN_Context *context, uint32_t *ID, uint8_t data[], bool *is_new_message);
+int socketcan_transmit(CAN_Context *context, uint32_t ID, uint8_t data[], uint8_t DLC);
+int socketcan_setup(CAN_Context *context, const char *ifname);
+void socketcan_close(CAN_Context *context);
 
 #ifdef __cplusplus
 }

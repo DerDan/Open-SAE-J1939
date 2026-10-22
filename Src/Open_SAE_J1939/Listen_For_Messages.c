@@ -16,7 +16,7 @@ ENUM_J1939_RX_MSG Open_SAE_J1939_Listen_For_Messages(J1939* j1939) {
 	uint32_t ID = 0;
 	uint8_t data[8] = {0};
 	ENUM_J1939_RX_MSG rx_msg = RX_MSG_NONE;
-	bool is_new_message = CAN_Read_Message(&ID, data);
+	bool is_new_message = CAN_Read_Message(j1939, &ID, data);
 	if(is_new_message) {
 		/* Save latest */
 		j1939->ID = ID;

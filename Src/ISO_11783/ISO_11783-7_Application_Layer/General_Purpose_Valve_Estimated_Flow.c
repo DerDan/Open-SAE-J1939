@@ -34,7 +34,7 @@ ENUM_J1939_STATUS_CODES ISO_11783_Response_Request_General_Purpose_Valve_Estimat
 	data[5] = j1939->this_general_purpose_valve_estimated_flow.extend_estimated_flow_extended >> 8;
 	data[6] = j1939->this_general_purpose_valve_estimated_flow.retract_estimated_flow_extended;
 	data[7] = j1939->this_general_purpose_valve_estimated_flow.retract_estimated_flow_extended >> 8;
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*

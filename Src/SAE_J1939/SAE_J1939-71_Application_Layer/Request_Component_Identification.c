@@ -38,7 +38,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Component_Identification(J193
 		data[5] = 0xFF;													 /* Reserved */
 		data[6] = 0xFF;													 /* Reserved */
 		data[7] = 0xFF;													 /* Reserved */
-		return CAN_Send_Message(ID, data);
+		return CAN_Send_Message(j1939, ID, data);
 	} else {
 		/* Multiple messages - Load data */
 		j1939->this_ecu_tp_cm.total_message_size_being_transmitted = 0;
@@ -83,11 +83,10 @@ void SAE_J1939_Read_Response_Request_Component_Identification(J1939 *j1939, uint
 		j1939->from_other_ecu_identifications.component_identification.component_unit_name[i] = data[i + length_of_each_field*3];
 	}
 	j1939->from_other_ecu_identifications.component_identification.from_ecu_address = SA;
-  if (Callback_Function_Application) {
+  if (j1939->Callback_Function_Application) {
     SAE_Application_Info info;
     info.type = IDENTIFICATION_COMPONENT;
     info.component_identification = &j1939->from_other_ecu_identifications.component_identification;
-    Callback_Function_Application(info);
+    j1939->Callback_Function_Application(j1939, info);
   }
 }
-

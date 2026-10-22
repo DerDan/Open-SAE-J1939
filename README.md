@@ -32,6 +32,25 @@ After you have understand the structure of the project, then select processor ch
 Here you can select for example `STM32`, `Arduino`, `PIC`, `AVR` etc. or if you want to run it on PC first, then build with the define `OPENSAE_J1939_TARGET_PLATFORM` and run some examples.
 That's the debugging mode for internal CAN feedback.
 
+## CAN contexts and API migration
+
+Each `J1939` instance must be attached to an initialized `CAN_Context` before
+communication. Use a separate context for each CAN interface:
+
+```c
+CAN_Context can_context;
+J1939 j1939 = {0};
+
+CAN_Context_Init(&can_context);
+can_context.Tag = 1;
+j1939.can_context = &can_context;
+```
+
+Hardware callbacks receive the originating `J1939 *` as their first argument;
+application callbacks are registered per ECU. This is a breaking API change.
+See [Multiple CAN contexts](multiple-can-context.md) for callback signatures,
+initialization, backend integration and migration details.
+
 ## Building with CMake
 
 This project can be built with CMake. The build can be configured to target different hardware platforms.
@@ -145,7 +164,8 @@ cmake -B build -DOPENSAE_J1939_TARGET_PLATFORM=SOCKETCAN -DMAX_PROPRIETARY_B_PGN
 /* Include ISO 11783 */
 #include "ISO_11783/ISO_11783-7_Application_Layer/Application_Layer.h"
 
-void Callback_Function_Send(uint32_t ID, uint8_t DLC, uint8_t data[]) {
+void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[]) {
+	(void)instance;
 	/* Apply your transmit layer here, e.g:
 	 * uint32_t TxMailbox;
 	 * static CAN_HandleTypeDef can_handler;
@@ -156,7 +176,8 @@ void Callback_Function_Send(uint32_t ID, uint8_t DLC, uint8_t data[]) {
 	 */
 }
 
-void Callback_Function_Read(uint32_t* ID, uint8_t data[], bool* is_new_data) {
+void Callback_Function_Read(J1939 *instance, uint32_t* ID, uint8_t data[], bool* is_new_data) {
+	(void)instance;
 	/* Apply your receive layer here, e.g:
 	 * CAN_RxHeaderTypeDef rxHeader = {0};
 	 * static CAN_HandleTypeDef can_handler;
@@ -170,7 +191,8 @@ void Callback_Function_Read(uint32_t* ID, uint8_t data[], bool* is_new_data) {
 }
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+	(void)instance;
 	/* Print if it is TX or RX */
 	printf("%s\t", is_TX ? "TX" : "RX");
 
@@ -193,7 +215,8 @@ void Callback_Function_Traffic(uint32_t ID, uint8_t DLC, uint8_t data[], bool is
 }
 
 /* Apply your delay here */
-void Callback_Function_Delay(uint8_t delay){
+void Callback_Function_Delay(J1939 *instance, uint8_t delay){
+	(void)instance;
 	/* Place your hardware delay here e.g HAL_Delay(delay); for STM32 */
 }
 
@@ -201,14 +224,17 @@ int main() {
 
 	/* Create our J1939 structure */
 	J1939 j1939 = { 0 };
+	CAN_Context can_context;
+	CAN_Context_Init(&can_context);
+	j1939.can_context = &can_context;
 
 	/*
 	 * Callbacks can be used if you want to pass a specific CAN-function into the hardware layer.
-	 * All you need to do is to enable INTERNAL_CALLLBACK inside hardware.h
+	 * Build with OPENSAE_J1939_TARGET_PLATFORM=INTERNAL_CALLBACK
 	 * If you don't want to have the traffic callback, just set the argument as NULL.
 	 * If you don't want any callback at all, you can write your own hardware layer by selecting a specific processor choice at hardware.h
 	 */
-	CAN_Set_Callback_Functions(Callback_Function_Send, Callback_Function_Read, Callback_Function_Traffic, Callback_Function_Delay);
+	CAN_Set_Callback_Functions(&can_context, Callback_Function_Send, Callback_Function_Read, Callback_Function_Traffic, Callback_Function_Delay);
 
 	/* Load your ECU information */
 	Open_SAE_J1939_Startup_ECU(&j1939);

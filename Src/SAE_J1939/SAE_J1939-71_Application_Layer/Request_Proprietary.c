@@ -31,7 +31,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Proprietary_A(J1939* j1939, u
 		uint32_t ID = (0x14EF23 << 8) | j1939->information_this_ECU.this_ECU_address;
 		uint8_t data[8];
 		memcpy(data, j1939->this_proprietary.proprietary_A.data, length_of_each_field);
-		return CAN_Send_Message(ID, data);
+		return CAN_Send_Message(j1939, ID, data);
 	}
 	else {
 		/* Multiple messages - Load data */
@@ -65,10 +65,10 @@ void SAE_J1939_Read_Response_Request_Proprietary_A(J1939* j1939, uint8_t SA, uin
 	uint16_t total_bytes = j1939->from_other_ecu_proprietary.proprietary_A.total_bytes;
 	memcpy(j1939->from_other_ecu_proprietary.proprietary_A.data, data, total_bytes);
 	j1939->from_other_ecu_proprietary.proprietary_A.from_ecu_address = SA;
-  if (Callback_Function_Application) {
+  if (j1939->Callback_Function_Application) {
     SAE_Application_Info info;
     info.type = PROPRIETARY_A;
     info.proprietary_a = &j1939->from_other_ecu_proprietary.proprietary_A;
-    Callback_Function_Application(info);
+    j1939->Callback_Function_Application(j1939, info);
   }
 }

@@ -13,7 +13,8 @@
 /* Include ISO 11783 */
 #include "ISO_11783/ISO_11783-7_Application_Layer/Application_Layer.h"
 
-void Callback_Function_Send(uint32_t ID, uint8_t DLC, uint8_t data[]) {
+void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[]) {
+	(void)instance;
 	/* Apply your transmit layer here, e.g:
 	 * uint32_t TxMailbox;
 	 * static CAN_HandleTypeDef can_handler;
@@ -24,7 +25,8 @@ void Callback_Function_Send(uint32_t ID, uint8_t DLC, uint8_t data[]) {
 	 */
 }
 
-void Callback_Function_Read(uint32_t* ID, uint8_t data[], bool* is_new_data) {
+void Callback_Function_Read(J1939 *instance, uint32_t* ID, uint8_t data[], bool* is_new_data) {
+	(void)instance;
 	/* Apply your receive layer here, e.g:
 	 * CAN_RxHeaderTypeDef rxHeader = {0};
 	 * static CAN_HandleTypeDef can_handler;
@@ -38,7 +40,8 @@ void Callback_Function_Read(uint32_t* ID, uint8_t data[], bool* is_new_data) {
 }
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+	(void)instance;
 	/* Print if it is TX or RX */
 	printf("%s\t", is_TX ? "TX" : "RX");
 
@@ -61,7 +64,8 @@ void Callback_Function_Traffic(uint32_t ID, uint8_t DLC, uint8_t data[], bool is
 }
 
 /* Apply your delay here */
-void Callback_Function_Delay(uint8_t delay){
+void Callback_Function_Delay(J1939 *instance, uint8_t delay){
+	(void)instance;
 	/* Place your hardware delay here e.g HAL_Delay(delay); for STM32 */
 }
 
@@ -69,6 +73,9 @@ int main() {
 
 	/* Create our J1939 structure */
 	J1939 j1939 = { 0 };
+	CAN_Context can_context;
+	CAN_Context_Init(&can_context);
+	j1939.can_context = &can_context;
 
 	/*
 	 * Callbacks can be used if you want to pass a specific CAN-function into the hardware layer.
@@ -76,7 +83,7 @@ int main() {
 	 * If you don't want to have the traffic callback, just set the argument as NULL.
 	 * If you don't want any callback at all, you can write your own hardware layer by selecting a specific processor choice at hardware.h
 	 */
-	CAN_Set_Callback_Functions(Callback_Function_Send, Callback_Function_Read, Callback_Function_Traffic, Callback_Function_Delay);
+	CAN_Set_Callback_Functions(&can_context, Callback_Function_Send, Callback_Function_Read, Callback_Function_Traffic, Callback_Function_Delay);
 
 	/* Load your ECU information */
 	Open_SAE_J1939_Startup_ECU(&j1939);

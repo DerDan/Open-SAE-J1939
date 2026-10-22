@@ -24,7 +24,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Binary_Data_Transfer_DM16(J1939 *j1939, u
 		for(i = 0; i < number_of_occurences; i++){
 			data[i+1] = raw_binary_data[i];
 		}
-		return CAN_Send_Message(ID, data);
+		return CAN_Send_Message(j1939, ID, data);
 	}else{
 		/* Multiple messages - Load data */
 		j1939->this_ecu_tp_cm.total_message_size_being_transmitted = 0;
@@ -65,4 +65,3 @@ void SAE_J1939_Read_Binary_Data_Transfer_DM16(J1939 *j1939, uint8_t SA, uint8_t 
 		j1939->from_other_ecu_dm.dm16.raw_binary_data[i] = data[i+1];
 	}
 }
-

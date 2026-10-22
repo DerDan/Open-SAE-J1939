@@ -139,5 +139,5 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Request(J1939 *j1939, uint8_t DA, uint32_
 
     uint32_t ID = (0x18EAUL << 16) | ((uint32_t)(DA) << 8)
                   | (uint32_t)(j1939->information_this_ECU.this_ECU_address);
-    return CAN_Send_Request(ID, PGN);
+    return CAN_Send_Request(j1939, ID, PGN);
 }

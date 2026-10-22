@@ -32,7 +32,7 @@ ENUM_J1939_STATUS_CODES ISO_11783_Response_Request_Auxiliary_Valve_Measured_Posi
 	data[3] = j1939->this_auxiliary_valve_measured_position[valve_number].measured_position_micrometer;
 	data[4] = j1939->this_auxiliary_valve_measured_position[valve_number].measured_position_micrometer >> 8;
 	data[5] = data[6] = data[7] = 0xFF;								/* All reserved */
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*

@@ -128,5 +128,5 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Transport_Protocol_Connection_Management(
 	data[6] = j1939->this_ecu_tp_cm.PGN_of_the_packeted_message >> 8;
 	data[7] = j1939->this_ecu_tp_cm.PGN_of_the_packeted_message >> 16;
 
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }

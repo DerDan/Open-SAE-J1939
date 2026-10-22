@@ -12,14 +12,16 @@ static Frame frames[16];
 static unsigned int sent;
 static unsigned int received;
 
-static void send_frame(uint32_t id, uint8_t dlc, uint8_t data[]) {
+static void send_frame(J1939 *j1939, uint32_t id, uint8_t dlc, uint8_t data[]) {
+    (void)j1939;
     frames[sent].id = id;
     memset(frames[sent].data, 0, 8);
     memcpy(frames[sent].data, data, dlc);
     sent++;
 }
 
-static void read_frame(uint32_t *id, uint8_t data[], bool *is_new) {
+static void read_frame(J1939 *j1939, uint32_t *id, uint8_t data[], bool *is_new) {
+    (void)j1939;
     *is_new = received < sent;
     if (*is_new) {
         *id = frames[received].id;
@@ -28,22 +30,28 @@ static void read_frame(uint32_t *id, uint8_t data[], bool *is_new) {
     }
 }
 
-static void delay_ms(uint8_t milliseconds) {
+static void delay_ms(J1939 *j1939, uint8_t milliseconds) {
+    (void)j1939;
     (void)milliseconds;
 }
 
 int main(void) {
     J1939 requester = {0};
     J1939 responder = {0};
+    CAN_Context can_context;
     const uint8_t software[15] = "SAE J1939!!!";
     const uint8_t expected_eom[8] = {0x13, 16, 0, 3, 0xFF, 0xDA, 0xFE, 0};
     unsigned int i;
+
+    CAN_Context_Init(&can_context);
+    requester.can_context = &can_context;
+    responder.can_context = &can_context;
 
     requester.information_this_ECU.this_ECU_address = 0x90;
     responder.information_this_ECU.this_ECU_address = 0xA2;
     responder.information_this_ECU.this_identifications.software_identification.number_of_fields = 15;
     memcpy(responder.information_this_ECU.this_identifications.software_identification.identifications, software, 15);
-    CAN_Set_Callback_Functions(send_frame, read_frame, NULL, delay_ms);
+    CAN_Set_Callback_Functions(&can_context, send_frame, read_frame, NULL, delay_ms);
 
     SAE_J1939_Send_Request_Software_Identification(&requester, 0xA2);
     Open_SAE_J1939_Listen_For_Messages(&responder); /* request -> RTS */

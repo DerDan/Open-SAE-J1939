@@ -1,4 +1,4 @@
-*
+/*
  * Main.cpp
  *
  * The purpose of this file is to show how one can build
@@ -42,10 +42,12 @@ ECUArguments args;
 
 /* J1939 stack */
 J1939 j1939 = {0};
+CAN_Context can_context;
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(uint32_t ID, uint8_t DLC, uint8_t data[],
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[],
                                bool is_TX) {
+  (void)instance;
   if (args.debug > DEBUG_LOW) {
     /* Print if it is TX or RX */
     printf("%s\t", is_TX ? "TX" : "RX");
@@ -123,7 +125,7 @@ void handle_ecu_identification(ECU_identification *id) {
   printf("-------------------------------------------\n");
 }
 
-void handle_proprietary_b(Proprietary_B *msg) {
+void handle_proprietary_b(J1939 *instance, Proprietary_B *msg) {
   printf("--- Incoming Proprietary B Message ---\n");
   printf("    From ECU: %d\n", msg->from_ecu_address);
   printf("    PGN: %d\n", msg->pgn);
@@ -136,14 +138,14 @@ void handle_proprietary_b(Proprietary_B *msg) {
   }
   printf("\n");
   printf("--------------------------------------\n");
-  SAE_J1939_Send_Request(&j1939, args.this_ECU_address + 1,
+  SAE_J1939_Send_Request(instance, instance->information_this_ECU.this_ECU_address + 1,
                          PGN_ECU_IDENTIFICATION);
 }
 
-void handle_incoming(SAE_Application_Info msg) {
+void handle_incoming(J1939 *instance, SAE_Application_Info msg) {
   switch (msg.type) {
   case PROPRIETARY_B: {
-    handle_proprietary_b(msg.proprietary_b);
+    handle_proprietary_b(instance, msg.proprietary_b);
     break;
   }
   case IDENTIFICATION_ECU: {
@@ -233,7 +235,11 @@ int main(int argc, char *argv[]) {
   parseArguments(argc, argv);
 
   // Setup socketcan
-  socketcan_setup(args.ifname.c_str());
+  CAN_Context_Init(&can_context);
+  j1939.can_context = &can_context;
+  if (socketcan_setup(&can_context, args.ifname.c_str()) < 0) {
+    return EXIT_FAILURE;
+  }
 
   // Setup this J1939 stack
   setupThisJ1939ECU();
@@ -247,10 +253,10 @@ int main(int argc, char *argv[]) {
   SAE_J1939_Send_Request_Address_Claimed(&j1939, 0xFF);
 
   /* Callback for monitoring CAN activity */
-  CAN_Set_Callback_Functions(NULL, NULL, Callback_Function_Traffic, NULL);
+  CAN_Set_Callback_Functions(&can_context, NULL, NULL, Callback_Function_Traffic, NULL);
 
   /* Callback for handling SAE J1939 application layer */
-  SAE_J1939_Set_Application_Callback_Function(handle_incoming);
+  SAE_J1939_Set_Application_Callback_Function(&j1939, handle_incoming);
 
   /* SAE J1939 process */
   bool run = true;
@@ -266,7 +272,7 @@ int main(int argc, char *argv[]) {
 
   /* Save your ECU information */
   Open_SAE_J1939_Closedown_ECU(&j1939);
+  socketcan_close(&can_context);
 
   return 0;
 }
-

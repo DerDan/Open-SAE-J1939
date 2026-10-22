@@ -38,7 +38,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Address_Claimed(J1939 *j1939)
 	data[5] = j1939->information_this_ECU.this_name.function;
 	data[6] = j1939->information_this_ECU.this_name.vehicle_system << 1;
 	data[7] = (j1939->information_this_ECU.this_name.arbitrary_address_capable << 7) | (j1939->information_this_ECU.this_name.industry_group << 4) | j1939->information_this_ECU.this_name.vehicle_system_instance;
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*

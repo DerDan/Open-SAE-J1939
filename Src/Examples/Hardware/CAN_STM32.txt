@@ -7,30 +7,39 @@
 
 #include "Functions.h"
 
-static CAN_HandleTypeDef *can_handler;
-static J1939 *j1939_handler;
+typedef struct {
+	CAN_Context can_context;
+	CAN_HandleTypeDef *can_handler;
+	J1939 *j1939;
+} STM32_CAN_Context;
+
+STM32_CAN_Context *STM32_PLC_Get_CAN_Context(CAN_HandleTypeDef *hcan);
 static void Create_CAN_Filter(CAN_HandleTypeDef *hcan);
 static void Create_CAN_Interrupt(CAN_HandleTypeDef *hcan);
 
-void STM32_PLC_Start_CAN(CAN_HandleTypeDef *hcan, J1939 *j1939) {
-	can_handler = hcan;
-	j1939_handler = j1939;
+void STM32_PLC_Start_CAN(STM32_CAN_Context *context, CAN_HandleTypeDef *hcan, J1939 *j1939) {
+	CAN_Context_Init(&context->can_context);
+	context->can_handler = hcan;
+	context->j1939 = j1939;
+	j1939->can_context = &context->can_context;
 	Create_CAN_Filter(hcan);
 	if (HAL_CAN_Start(hcan) != HAL_OK)
 		Error_Handler();
 	Create_CAN_Interrupt(hcan);
 }
 
-HAL_StatusTypeDef STM32_PLC_CAN_Transmit(uint8_t TxData[], CAN_TxHeaderTypeDef *TxHeader) {
+HAL_StatusTypeDef STM32_PLC_CAN_Transmit(J1939 *j1939, uint8_t TxData[], CAN_TxHeaderTypeDef *TxHeader) {
+	STM32_CAN_Context *context = (STM32_CAN_Context *)j1939->can_context;
 	uint32_t TxMailbox;
-	return HAL_CAN_AddTxMessage(can_handler, TxHeader, TxData, &TxMailbox);
+	return HAL_CAN_AddTxMessage(context->can_handler, TxHeader, TxData, &TxMailbox);
 }
 
 /* Returns true if the message data is new */
-void STM32_PLC_CAN_Get_ID_Data(uint32_t* ID, uint8_t data[], bool* is_new_message) {
+void STM32_PLC_CAN_Get_ID_Data(J1939 *j1939, uint32_t* ID, uint8_t data[], bool* is_new_message) {
+	STM32_CAN_Context *context = (STM32_CAN_Context *)j1939->can_context;
 	CAN_RxHeaderTypeDef RxHeader = {0};
 	uint8_t RxData[8] = {0};
-	HAL_StatusTypeDef status = HAL_CAN_GetRxMessage(can_handler, CAN_RX_FIFO0, &RxHeader, RxData);
+	HAL_StatusTypeDef status = HAL_CAN_GetRxMessage(context->can_handler, CAN_RX_FIFO0, &RxHeader, RxData);
 	if (status != HAL_OK)
 		Error_Handler();
 
@@ -55,7 +64,10 @@ void STM32_PLC_CAN_Get_ID_Data(uint32_t* ID, uint8_t data[], bool* is_new_messag
 
 /* Interrupt handler that read message */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
-	Open_SAE_J1939_Listen_For_Messages(j1939_handler);
+	STM32_CAN_Context *context = STM32_PLC_Get_CAN_Context(hcan);
+	if (context != NULL) {
+		Open_SAE_J1939_Listen_For_Messages(context->j1939);
+	}
 }
 
 

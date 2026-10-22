@@ -31,7 +31,7 @@ ENUM_J1939_STATUS_CODES ISO_11783_Response_Request_Auxiliary_Valve_Estimated_Flo
 	data[2] = (j1939->this_auxiliary_valve_estimated_flow[valve_number].fail_safe_mode << 6) | (0b11 << 4) | j1939->this_auxiliary_valve_estimated_flow[valve_number].valve_state; 	/* Bit 5 and 6 are reserved */
 	data[3] = j1939->this_auxiliary_valve_estimated_flow[valve_number].limit << 5;
 	data[4] = data[5] = data[6] = data[7] = 0xFF;					/* All reserved */
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*
@@ -46,4 +46,3 @@ void ISO_11783_Read_Response_Request_Auxiliary_Estimated_Flow(J1939 *j1939, uint
 	j1939->from_other_ecu_auxiliary_valve_estimated_flow[valve_number].limit = data[3] >> 5;
 	j1939->from_other_ecu_auxiliary_valve_estimated_flow[valve_number].from_ecu_address = SA;
 }
-

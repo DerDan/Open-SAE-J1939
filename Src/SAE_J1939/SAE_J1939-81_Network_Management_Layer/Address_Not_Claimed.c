@@ -25,7 +25,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Address_Not_Claimed(J1939 *j1939) {
 	data[5] = j1939->information_this_ECU.this_name.function;
 	data[6] = j1939->information_this_ECU.this_name.vehicle_system << 1;
 	data[7] = (j1939->information_this_ECU.this_name.arbitrary_address_capable << 7) | (j1939->information_this_ECU.this_name.industry_group << 4) | j1939->information_this_ECU.this_name.vehicle_system_instance;
-	return CAN_Send_Message(ID, data);
+	return CAN_Send_Message(j1939, ID, data);
 }
 
 /*
@@ -45,4 +45,3 @@ void SAE_J1939_Read_Address_Not_Claimed(J1939 *j1939, uint8_t SA, uint8_t data[]
 	j1939->from_other_ecu_name.from_ecu_address = SA;
 	j1939->number_of_cannot_claim_address++;
 }
-
