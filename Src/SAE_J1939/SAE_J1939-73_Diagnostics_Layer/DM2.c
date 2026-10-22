@@ -74,7 +74,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_DM2(J1939 *j1939, uint8_t DA)
  * Store the last DM2 information about other ECU. At least we know how many errors are active
  * PGN: 0x00FECB (65227)
  */
-void SAE_J1939_Read_Response_Request_DM2(J1939 *j1939, uint8_t SA, uint8_t data[], uint8_t errors_dm2_active) {
+void SAE_J1939_Read_Response_Request_DM2(J1939 *j1939, uint8_t SA, const uint8_t data[], uint8_t errors_dm2_active) {
 	/* If there are fewer active DTCs than previous, clear the list so old DTCs do not remain after parsing the new ones */
 	if (errors_dm2_active < j1939->from_other_ecu_dm.errors_dm2_active) {
 		memset(&j1939->from_other_ecu_dm.dm2.SPN, 0, sizeof(j1939->from_other_ecu_dm.dm2.SPN)); 	/* This set all fields of dm1 to 0 */

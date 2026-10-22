@@ -45,7 +45,7 @@ J1939 j1939 = {0};
 CAN_Context can_context;
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[],
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[],
                                bool is_TX) {
   (void)instance;
   if (args.debug > DEBUG_LOW) {
@@ -115,7 +115,7 @@ void parseArguments(int argc, char *argv[]) {
   }
 }
 
-void handle_ecu_identification(ECU_identification *id) {
+void handle_ecu_identification(const ECU_identification *id) {
   printf("--- Incoming ECU identification Message ---\n");
   printf("    From ECU: %d\n", id->from_ecu_address);
   printf("    Serial: %s\n", id->ecu_serial_number);
@@ -125,7 +125,7 @@ void handle_ecu_identification(ECU_identification *id) {
   printf("-------------------------------------------\n");
 }
 
-void handle_proprietary_b(J1939 *instance, Proprietary_B *msg) {
+void handle_proprietary_b(J1939 *instance, const Proprietary_B *msg) {
   printf("--- Incoming Proprietary B Message ---\n");
   printf("    From ECU: %d\n", msg->from_ecu_address);
   printf("    PGN: %d\n", msg->pgn);

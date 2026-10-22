@@ -28,15 +28,20 @@ void STM32_PLC_Start_CAN(STM32_CAN_Context *context, CAN_HandleTypeDef *hcan, J1
 	Create_CAN_Interrupt(hcan);
 }
 
-HAL_StatusTypeDef STM32_PLC_CAN_Transmit(J1939 *j1939, uint8_t TxData[], CAN_TxHeaderTypeDef *TxHeader) {
-	STM32_CAN_Context *context = (STM32_CAN_Context *)j1939->can_context;
+HAL_StatusTypeDef STM32_PLC_CAN_Transmit(J1939 *j1939, const uint8_t TxData[], CAN_TxHeaderTypeDef *TxHeader) {
+	const STM32_CAN_Context *context = (const STM32_CAN_Context *)j1939->can_context;
 	uint32_t TxMailbox;
-	return HAL_CAN_AddTxMessage(context->can_handler, TxHeader, TxData, &TxMailbox);
+	uint8_t frame_data[8] = {0};
+	if (TxHeader->DLC > sizeof(frame_data)) {
+		return HAL_ERROR;
+	}
+	memcpy(frame_data, TxData, TxHeader->DLC);
+	return HAL_CAN_AddTxMessage(context->can_handler, TxHeader, frame_data, &TxMailbox);
 }
 
 /* Returns true if the message data is new */
 void STM32_PLC_CAN_Get_ID_Data(J1939 *j1939, uint32_t* ID, uint8_t data[], bool* is_new_message) {
-	STM32_CAN_Context *context = (STM32_CAN_Context *)j1939->can_context;
+	const STM32_CAN_Context *context = (const STM32_CAN_Context *)j1939->can_context;
 	CAN_RxHeaderTypeDef RxHeader = {0};
 	uint8_t RxData[8] = {0};
 	HAL_StatusTypeDef status = HAL_CAN_GetRxMessage(context->can_handler, CAN_RX_FIFO0, &RxHeader, RxData);

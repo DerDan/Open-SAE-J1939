@@ -12,7 +12,7 @@
  * Store information about sequence data packages from other ECU who are going to send to this ECU
  * PGN: 0x00EC00 (60416)
  */
-void SAE_J1939_Read_Transport_Protocol_Connection_Management(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Transport_Protocol_Connection_Management(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	/* Read the control byte */
 	j1939->from_other_ecu_tp_cm.control_byte = data[0];
 

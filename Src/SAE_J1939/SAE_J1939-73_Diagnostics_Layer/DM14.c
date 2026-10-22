@@ -33,7 +33,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Request_DM14(J1939 *j1939, uint8_t DA, ui
  * Read the request of DM14 memory request to other ECU about this ECU
  * PGN: 0x00D900 (55552)
  */
-ENUM_J1939_STATUS_CODES SAE_J1939_Read_Request_DM14(J1939 *j1939, uint8_t DA, uint8_t data[]) {
+ENUM_J1939_STATUS_CODES SAE_J1939_Read_Request_DM14(J1939 *j1939, uint8_t DA, const uint8_t data[]) {
 	/* These are information the ECU want to have */
 	uint16_t number_of_requested_bytes = ((data[1] & 0b11100000) << 3) | data[0];
 	uint8_t pointer_type = (data[1] >> 4) & 0b0001;

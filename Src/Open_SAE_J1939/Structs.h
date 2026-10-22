@@ -270,11 +270,11 @@ typedef enum {
 typedef struct{
   SAE_Application_Info_Type type;
   union {
-    Software_identification *software_identification;
-    ECU_identification *ecu_identification;
-    Component_identification *component_identification;
-    Proprietary_A *proprietary_a;
-    Proprietary_B *proprietary_b;
+    const Software_identification *software_identification;
+    const ECU_identification *ecu_identification;
+    const Component_identification *component_identification;
+    const Proprietary_A *proprietary_a;
+    const Proprietary_B *proprietary_b;
   };
 } SAE_Application_Info;
 
@@ -284,9 +284,9 @@ typedef struct CAN_Context CAN_Context;
 struct CAN_Context {
 	uint32_t Tag;
 
-	void (*Callback_Function_Send)(J1939 *j1939, uint32_t ID, uint8_t DLC, uint8_t data[]);
+	void (*Callback_Function_Send)(J1939 *j1939, uint32_t ID, uint8_t DLC, const uint8_t data[]);
 	void (*Callback_Function_Read)(J1939 *j1939, uint32_t *ID, uint8_t data[], bool *is_new_message);
-	void (*Callback_Function_Traffic)(J1939 *j1939, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_transmit);
+	void (*Callback_Function_Traffic)(J1939 *j1939, uint32_t ID, uint8_t DLC, const uint8_t data[], bool is_transmit);
 	void (*Callback_Function_Delay_ms)(J1939 *j1939, uint8_t milliseconds);
 
 	bool internal_new_message[256];

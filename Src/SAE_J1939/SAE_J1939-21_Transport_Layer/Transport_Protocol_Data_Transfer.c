@@ -16,7 +16,7 @@
  * Store the sequence data packages from other ECU
  * PGN: 0x00EB00 (60160)
  */
-void SAE_J1939_Read_Transport_Protocol_Data_Transfer(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Transport_Protocol_Data_Transfer(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	bool abortCommunication = false;
 	/* Save the sequence data */
 	j1939->from_other_ecu_tp_dt.sequence_number = data[0];

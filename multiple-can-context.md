@@ -61,11 +61,11 @@ The four callback members of `CAN_Context` are:
 
 ```c
 void (*Callback_Function_Send)(J1939 *j1939, uint32_t ID,
-                               uint8_t DLC, uint8_t data[]);
+                               uint8_t DLC, const uint8_t data[]);
 void (*Callback_Function_Read)(J1939 *j1939, uint32_t *ID,
                                uint8_t data[], bool *is_new_message);
 void (*Callback_Function_Traffic)(J1939 *j1939, uint32_t ID,
-                                  uint8_t DLC, uint8_t data[], bool is_transmit);
+                                  uint8_t DLC, const uint8_t data[], bool is_transmit);
 void (*Callback_Function_Delay_ms)(J1939 *j1939, uint8_t milliseconds);
 ```
 
@@ -85,6 +85,35 @@ The callback can read `j1939->can_context->Tag`. Passing the instance on every
 call also identifies the originating ECU when several instances share a CAN
 context.
 
+## Const-correctness
+
+Payloads passed to `CAN_Send_Message`, `CAN_Send_Request`,
+`socketcan_transmit` and the send/traffic callbacks use `const uint8_t[]`.
+They are borrowed input buffers and must not be modified. The
+`SAE_J1939_Read_*` and `ISO_11783_Read_*` decoders also accept read-only input
+frames, while `CAN_Read_Message`, `socketcan_receive` and the read callback
+receive writable output buffers. DM16 accepts a read-only binary transmit buffer.
+
+The union members in `SAE_Application_Info` point to `const` identification
+or proprietary data. These views belong to the receiving ECU and may change
+when it processes later messages. Copy the data if it must be retained.
+
+Callbacks keep a mutable `J1939 *` so that an application can respond using
+the protocol API and update its instance state. Backend contexts remain mutable
+where operations consume queued frames, initialize a socket or invoke callbacks.
+A `const J1939 *` would only protect that structure, not the mutable context
+referenced by its `can_context` pointer.
+
+`Save_Struct` accepts const data and filenames; `Load_Struct` accepts a const
+filename and writable output data. `Open_SAE_J1939_Closedown_ECU` accepts a
+`const J1939 *` because it only reads the ECU information.
+
+Update callback implementations and platform declarations to match these
+qualifiers. Do not cast away `const` or cast incompatible callback pointers.
+The STM32 transmit example copies the requested DLC into a local mutable
+eight-byte frame before calling HAL, so it also supports HAL declarations with
+mutable input buffers.
+
 ## Public API changes
 
 Use the following API migration. Existing applications must update the affected calls
@@ -94,20 +123,24 @@ arguments throughout. Existing source and binary interfaces are not compatible.
 | API | Change |
 |---|---|
 | `CAN_Context_Init` | Initialize a caller-owned `CAN_Context *context` before use |
-| `CAN_Send_Message` | Add `J1939 *j1939` as the first argument |
-| `CAN_Send_Request` | Add `J1939 *j1939` as the first argument |
+| `CAN_Send_Message` | Add `J1939 *j1939` as the first argument; use const payload data |
+| `CAN_Send_Request` | Add `J1939 *j1939` as the first argument; use const PGN data |
 | `CAN_Read_Message` | Add `J1939 *j1939` as the first argument |
 | `CAN_Delay` | Add `J1939 *j1939` as the first argument |
 | `CAN_Set_Callback_Functions` | Add the target `CAN_Context *context` and use the new callback signatures |
 | `SAE_J1939_Set_Application_Callback_Function` | Add `J1939 *j1939` and use the new application callback signature |
 | `socketcan_setup` | Add `CAN_Context *context` as the first argument |
-| `socketcan_transmit` | Add `CAN_Context *context` as the first argument |
+| `socketcan_transmit` | Add `CAN_Context *context` as the first argument; use const payload data |
 | `socketcan_receive` | Add `CAN_Context *context` as the first argument |
 | `socketcan_close` | Release the socket belonging to one context |
 | `STM32_PLC_CAN_Transmit`, `STM32_PLC_CAN_Get_ID_Data` | Add `J1939 *j1939` to the platform integration |
 | `QT_USB_Transmit`, `QT_USB_Get_ID_Data` | Add `J1939 *j1939` to the platform integration |
 | `STM32_PLC_Start_CAN` | Add the owning `STM32_CAN_Context *context` |
 | `QT_USB_set_serial_handler` | Add the owning `QT_USB_Context *context` |
+| `SAE_J1939_Read_*`, `ISO_11783_Read_*` | Accept const input frame data |
+| `SAE_J1939_Send_Binary_Data_Transfer_DM16` | Accept const binary input data |
+| `Save_Struct`, `Load_Struct` | Accept const filenames; save data is also const |
+| `Open_SAE_J1939_Closedown_ECU` | Accept a const ECU instance |
 
 The public global `Callback_Function_Application` is replaced by the member of the
 corresponding `J1939` instance. Applications that assign this global directly must
@@ -228,8 +261,10 @@ cmake --build build/tests
 ctest --test-dir build/tests --output-on-failure
 ```
 
-The default suite runs `transport_eom`, `multiple_can_contexts` and
-`feedback_contexts`. Linux also runs `socketcan_contexts`, which builds the
+The default suite runs `transport_eom`, `multiple_can_contexts`,
+`feedback_contexts` and `const_contracts`. The const-contract test compiles with
+warnings treated as errors on GCC/Clang and exercises const payloads, callback
+views and ECU persistence. Linux also runs `socketcan_contexts`, which builds the
 real SocketCAN backend with mocked OS calls to verify descriptor/interface
 isolation, return codes and cleanup after setup errors.
 
@@ -249,9 +284,10 @@ require their platform headers, drivers and hardware.
 
 ## Validation results
 
-- Windows / MinGW GCC 8.1: all three core regression tests pass. The default
+- Windows / MinGW GCC 8.1: all four core regression tests pass. The default
   feedback `main` example exchanges the expected software identification.
-- Linux / WSL / GCC 13.3: all four core regression tests pass, including the
+  The const-contract test also compiles and runs as C++ with MinGW G++ 8.1.
+- Linux / WSL / GCC 13.3: all five core regression tests pass, including the
   SocketCAN backend with mocked socket operations.
 - Twenty finite host `.txt` examples compile and run successfully.
   `Open SAE J1939/Main.txt` compiles without running its endless event loop.

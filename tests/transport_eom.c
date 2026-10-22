@@ -12,7 +12,7 @@ static Frame frames[16];
 static unsigned int sent;
 static unsigned int received;
 
-static void send_frame(J1939 *j1939, uint32_t id, uint8_t dlc, uint8_t data[]) {
+static void send_frame(J1939 *j1939, uint32_t id, uint8_t dlc, const uint8_t data[]) {
     (void)j1939;
     frames[sent].id = id;
     memset(frames[sent].data, 0, 8);

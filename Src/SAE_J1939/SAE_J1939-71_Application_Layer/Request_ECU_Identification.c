@@ -102,7 +102,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Vehicle_Identification(J1939*
  * Store the ECU identification about other ECU
  * PGN: 0x00FDC5 (64965)
  */
-void SAE_J1939_Read_Response_Request_ECU_Identification(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Response_Request_ECU_Identification(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	/* ECU identification have 6 fixed fields in the J1939 struct */
 	uint8_t i, length_of_each_field = j1939->from_other_ecu_identifications.ecu_identification.length_of_each_field;
 	for(i = 0; i < length_of_each_field; i++) {
@@ -124,7 +124,7 @@ void SAE_J1939_Read_Response_Request_ECU_Identification(J1939 *j1939, uint8_t SA
  * Handle the response of a VIN request coming from a server
  * PGN: 0x00FEEC (65260)
  */
-void SAE_J1939_Read_Response_Request_Vehicle_Identification(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Response_Request_Vehicle_Identification(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	uint8_t i;
 	for (i = 0; i < j1939->information_this_ECU.this_vehicle_identification.length_of_vin; i++) {
 		j1939->from_other_ecu_identifications.vehicle_identification.vin[i] = data[i];

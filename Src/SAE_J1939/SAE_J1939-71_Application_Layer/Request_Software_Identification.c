@@ -62,7 +62,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Software_Identification(J1939
  * Store the software identification about other ECU
  * PGN: 0x00FEDA (65242)
  */
-void SAE_J1939_Read_Response_Request_Software_Identification(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Response_Request_Software_Identification(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	j1939->from_other_ecu_identifications.software_identification.number_of_fields = data[0];			 /* How many fields we have */
 	j1939->from_other_ecu_identifications.software_identification.from_ecu_address = SA;
 	uint8_t i;

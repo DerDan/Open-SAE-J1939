@@ -23,7 +23,7 @@
 #include "SocketCAN.h"
 #else
 /* Internal functions */
-static ENUM_J1939_STATUS_CODES Internal_Transmit(CAN_Context *context, uint32_t ID, uint8_t data[], uint8_t DLC) {
+static ENUM_J1939_STATUS_CODES Internal_Transmit(CAN_Context *context, uint32_t ID, const uint8_t data[], uint8_t DLC) {
 	context->internal_ID[context->buffer_index_transmit] = ID;
 	context->internal_DLC[context->buffer_index_transmit] = DLC;
 	uint8_t i;
@@ -62,7 +62,7 @@ static void Internal_Receive(CAN_Context *context, uint32_t* ID, uint8_t data[],
 }
 #endif
 
-ENUM_J1939_STATUS_CODES CAN_Send_Message(J1939 *j1939, uint32_t ID, uint8_t data[]) {
+ENUM_J1939_STATUS_CODES CAN_Send_Message(J1939 *j1939, uint32_t ID, const uint8_t data[]) {
 	ENUM_J1939_STATUS_CODES status = STATUS_SEND_BUSY;
 	CAN_Context *context;
 	if (j1939 == NULL || j1939->can_context == NULL || data == NULL) {
@@ -111,7 +111,7 @@ ENUM_J1939_STATUS_CODES CAN_Send_Message(J1939 *j1939, uint32_t ID, uint8_t data
 /* Send a PGN request
  * PGN: 0x00EA00 (59904)
  */
-ENUM_J1939_STATUS_CODES CAN_Send_Request(J1939 *j1939, uint32_t ID, uint8_t PGN[]) {
+ENUM_J1939_STATUS_CODES CAN_Send_Request(J1939 *j1939, uint32_t ID, const uint8_t PGN[]) {
 	ENUM_J1939_STATUS_CODES status = STATUS_SEND_BUSY;
 	CAN_Context *context;
 	if (j1939 == NULL || j1939->can_context == NULL || PGN == NULL) {
@@ -204,9 +204,9 @@ void CAN_Context_Init(CAN_Context *context) {
 }
 
 void CAN_Set_Callback_Functions(CAN_Context *context,
-	void (*Callback_Function_Send_)(J1939*, uint32_t, uint8_t, uint8_t[]),
+	void (*Callback_Function_Send_)(J1939*, uint32_t, uint8_t, const uint8_t[]),
 	void (*Callback_Function_Read_)(J1939*, uint32_t*, uint8_t[], bool*),
-	void (*Callback_Function_Traffic_)(J1939*, uint32_t, uint8_t, uint8_t[], bool),
+	void (*Callback_Function_Traffic_)(J1939*, uint32_t, uint8_t, const uint8_t[], bool),
 	void (*Callback_Function_Delay_ms_)(J1939*, uint8_t)
 ) {
 	if (context == NULL) {

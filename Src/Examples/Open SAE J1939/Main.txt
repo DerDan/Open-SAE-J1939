@@ -13,7 +13,7 @@
 /* Include ISO 11783 */
 #include "ISO_11783/ISO_11783-7_Application_Layer/Application_Layer.h"
 
-void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[]) {
+void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[]) {
 	(void)instance;
 	/* Apply your transmit layer here, e.g:
 	 * uint32_t TxMailbox;
@@ -40,7 +40,7 @@ void Callback_Function_Read(J1939 *instance, uint32_t* ID, uint8_t data[], bool*
 }
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[], bool is_TX) {
 	(void)instance;
 	/* Print if it is TX or RX */
 	printf("%s\t", is_TX ? "TX" : "RX");

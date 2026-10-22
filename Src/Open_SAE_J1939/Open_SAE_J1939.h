@@ -59,7 +59,7 @@ ENUM_J1939_RX_MSG Open_SAE_J1939_Listen_For_Messages(J1939 *j1939);
 bool Open_SAE_J1939_Startup_ECU(J1939* j1939);
 
 /* This function should ONLY be called at your ECU closedown */
-bool Open_SAE_J1939_Closedown_ECU(J1939* j1939);
+bool Open_SAE_J1939_Closedown_ECU(const J1939* j1939);
 
 #ifdef __cplusplus
 }

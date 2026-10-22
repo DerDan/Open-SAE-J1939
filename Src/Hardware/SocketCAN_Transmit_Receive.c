@@ -96,12 +96,12 @@ void socketcan_close(CAN_Context *context) {
   context->can_initialized = false;
 }
 
-static bool socketcan_is_initialized(CAN_Context *context) {
+static bool socketcan_is_initialized(const CAN_Context *context) {
   return context->can_initialized && context->can_socket >= 0;
 }
 
 // Transmit a CAN message
-int socketcan_transmit(CAN_Context *context, uint32_t ID, uint8_t data[], uint8_t DLC) {
+int socketcan_transmit(CAN_Context *context, uint32_t ID, const uint8_t data[], uint8_t DLC) {
   if (context == NULL || data == NULL || DLC > 8) {
     return -1;
   }

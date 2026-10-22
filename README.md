@@ -49,7 +49,9 @@ j1939.can_context = &can_context;
 Hardware callbacks receive the originating `J1939 *` as their first argument;
 application callbacks are registered per ECU. This is a breaking API change.
 See [Multiple CAN contexts](multiple-can-context.md) for callback signatures,
-initialization, backend integration and migration details.
+initialization, backend integration and migration details. Transmit and traffic
+callbacks receive `const uint8_t data[]`; application notifications expose
+read-only views. Receive buffers remain writable.
 
 ## Building with CMake
 
@@ -164,7 +166,7 @@ cmake -B build -DOPENSAE_J1939_TARGET_PLATFORM=SOCKETCAN -DMAX_PROPRIETARY_B_PGN
 /* Include ISO 11783 */
 #include "ISO_11783/ISO_11783-7_Application_Layer/Application_Layer.h"
 
-void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[]) {
+void Callback_Function_Send(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[]) {
 	(void)instance;
 	/* Apply your transmit layer here, e.g:
 	 * uint32_t TxMailbox;
@@ -191,7 +193,7 @@ void Callback_Function_Read(J1939 *instance, uint32_t* ID, uint8_t data[], bool*
 }
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[], bool is_TX) {
 	(void)instance;
 	/* Print if it is TX or RX */
 	printf("%s\t", is_TX ? "TX" : "RX");

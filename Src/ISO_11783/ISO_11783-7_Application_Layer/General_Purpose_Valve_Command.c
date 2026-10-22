@@ -31,7 +31,7 @@ ENUM_J1939_STATUS_CODES ISO_11783_Send_General_Purpose_Valve_Command(J1939 *j193
  * Read a general purpose valve command from an ECU
  * PGN: 0x00C400 (50176)
  */
-void ISO_11783_Read_General_Purpose_Valve_Command(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void ISO_11783_Read_General_Purpose_Valve_Command(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	j1939->from_other_ecu_general_purpose_valve_command.standard_flow = data[0];
 	j1939->from_other_ecu_general_purpose_valve_command.fail_safe_mode = data[2] >> 6;
 	j1939->from_other_ecu_general_purpose_valve_command.valve_state = data[2] & 0b00001111;

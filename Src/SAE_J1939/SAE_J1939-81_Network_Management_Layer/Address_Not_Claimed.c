@@ -32,7 +32,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Address_Not_Claimed(J1939 *j1939) {
  * Store the address not claimed information about other ECU. In this case, SA will always be 0xFE = 254
  * PGN: 0x00EE00 (60928)
  */
-void SAE_J1939_Read_Address_Not_Claimed(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Address_Not_Claimed(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	j1939->from_other_ecu_name.identity_number = ((data[2] & 0b00011111) << 16) | (data[1] << 8) | data[0];
 	j1939->from_other_ecu_name.manufacturer_code = (data[3] << 3) | (data[2] >> 5);
 	j1939->from_other_ecu_name.function_instance = data[4] >> 3;

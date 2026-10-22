@@ -17,7 +17,7 @@
 #include "Hardware/SocketCAN.h"
 
 /* This function reads the CAN traffic */
-void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, uint8_t data[], bool is_TX) {
+void Callback_Function_Traffic(J1939 *instance, uint32_t ID, uint8_t DLC, const uint8_t data[], bool is_TX) {
 	(void)instance;
     /* Print if it is TX or RX */
     printf("%s\t", is_TX ? "TX" : "RX");

@@ -50,7 +50,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Commanded_Address(J1939 *j1939, uint8_t D
  * Read the commanded address from another ECU. Will always be called from Transport Protocol Data Transfer due to 9 bytes of data
  * PGN: 0x00FED8 (65240)
  */
-void SAE_J1939_Read_Commanded_Address(J1939 *j1939, uint8_t data[]) {
+void SAE_J1939_Read_Commanded_Address(J1939 *j1939, const uint8_t data[]) {
 	/* Send to all ECU that the current address is unused */
 	SAE_J1939_Send_Address_Delete(j1939, 0xFF, j1939->information_this_ECU.this_ECU_address);
 
@@ -65,7 +65,7 @@ void SAE_J1939_Read_Commanded_Address(J1939 *j1939, uint8_t data[]) {
 	j1939->information_this_ECU.this_name.industry_group = (data[7] >> 4) & 0b0111;
 	j1939->information_this_ECU.this_name.vehicle_system_instance = data[7] & 0b00001111;
 	j1939->information_this_ECU.this_ECU_address = data[8]; 		/* New address of this ECU */
-	Save_Struct((uint8_t*)&j1939->information_this_ECU, sizeof(Information_this_ECU), INFORMATION_THIS_ECU);
+	Save_Struct((const uint8_t*)&j1939->information_this_ECU, sizeof(Information_this_ECU), INFORMATION_THIS_ECU);
 
 	/* Broadcast the new NAME and address of this ECU */
 	SAE_J1939_Response_Request_Address_Claimed(j1939);

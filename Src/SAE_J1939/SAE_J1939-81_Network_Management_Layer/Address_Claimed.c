@@ -45,7 +45,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Address_Claimed(J1939 *j1939)
  * Store the address claimed information about other ECU
  * PGN: 0x00EE00 (60928)
  */
-void SAE_J1939_Read_Response_Request_Address_Claimed(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Response_Request_Address_Claimed(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	/* Check if it's the same address */
 	if(j1939->information_this_ECU.this_ECU_address == SA){
 		SAE_J1939_Send_Address_Not_Claimed(j1939);

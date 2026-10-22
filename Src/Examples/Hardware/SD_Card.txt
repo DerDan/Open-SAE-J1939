@@ -38,11 +38,11 @@ FRESULT STM32_PLC_SD_Unmount_Card() {
 	return status;
 }
 
-FRESULT STM32_PLC_SD_Open_File_With_Read(char filename[]) {
+FRESULT STM32_PLC_SD_Open_File_With_Read(const char filename[]) {
 	return f_open(&USERFile, filename, FA_OPEN_ALWAYS | FA_READ); /* Posix "r" */
 }
 
-FRESULT STM32_PLC_SD_Create_File_With_Write(char filename[]) {
+FRESULT STM32_PLC_SD_Create_File_With_Write(const char filename[]) {
 	return f_open(&USERFile, filename, FA_CREATE_ALWAYS | FA_WRITE); /* Posix "w" */
 }
 
@@ -65,12 +65,12 @@ char* STM32_PLC_SD_Read_File(char text[], int len) {
 }
 
 /* Return -1 with End of File (EOF) */
-int STM32_PLC_SD_Write_File(char text[]) {
+int STM32_PLC_SD_Write_File(const char text[]) {
 	return f_puts(text, &USERFile);
 }
 
 /* Write data instead of text */
-FRESULT STM32_PLC_SD_Write_Data(uint8_t buff[], uint32_t btw){
+FRESULT STM32_PLC_SD_Write_Data(const uint8_t buff[], uint32_t btw){
 	unsigned int bw;
 	return f_write(&USERFile, buff, btw, &bw);
 }

@@ -81,7 +81,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Response_Request_Proprietary_B(J1939* j1939, u
  * Store the Proprietary B about other ECU
  * PGN: 0x00FF00 <-> 0x00FFFF
  */
-void SAE_J1939_Read_Response_Request_Proprietary_B(J1939* j1939, uint8_t SA, uint32_t PGN, uint8_t data[]) {
+void SAE_J1939_Read_Response_Request_Proprietary_B(J1939* j1939, uint8_t SA, uint32_t PGN, const uint8_t data[]) {
 	struct Proprietary_B * proprietary_B = Get_Proprietary_B_By_PGN(&j1939->from_other_ecu_proprietary, PGN);
 
 	if (proprietary_B == NULL) /* Proprietary B is not expected, don't fill the data anywhere */

@@ -8,8 +8,8 @@ void QT_USB_set_serial_handler(QT_USB_Context *context, QSerialPort* serial_port
     context->serial_port = serial_port;
 }
 
-ENUM_J1939_STATUS_CODES QT_USB_Transmit(J1939 *j1939, uint32_t ID, uint8_t data[], uint8_t DLC){
-    QT_USB_Context *context = (QT_USB_Context *)j1939->can_context;
+ENUM_J1939_STATUS_CODES QT_USB_Transmit(J1939 *j1939, uint32_t ID, const uint8_t data[], uint8_t DLC){
+    const QT_USB_Context *context = (const QT_USB_Context *)j1939->can_context;
     uint8_t send_data_array[14] = {0}; /* We cannot send more than 14 bytes */
     send_data_array[0] = J1939_MESSAGE_TYPE;
     send_data_array[1] = ID >> 24;  /* Most significant bit */
@@ -19,12 +19,12 @@ ENUM_J1939_STATUS_CODES QT_USB_Transmit(J1939 *j1939, uint32_t ID, uint8_t data[
     send_data_array[5] = DLC;       /* Data length */
     for(uint8_t i = 0; i < DLC; i++)
            send_data_array[6+i] = data[i];
-    context->serial_port->write((char*)send_data_array, 6+DLC);
+    context->serial_port->write((const char*)send_data_array, 6+DLC);
     return STATUS_SEND_OK;
 }
 
 void QT_USB_Get_ID_Data(J1939 *j1939, uint32_t *ID, uint8_t data[], bool* is_new_message){
-    QT_USB_Context *context = (QT_USB_Context *)j1939->can_context;
+    const QT_USB_Context *context = (const QT_USB_Context *)j1939->can_context;
     uint8_t receive_buf[13] = {0}; /* From STM32 PLC, we have send 14 bytes, but byte 0 is the message type, which we have already read */
     context->serial_port->read((char*)receive_buf, 13);
     *ID = (receive_buf[0] << 24) | (receive_buf[1] << 16) | (receive_buf[2] << 8) | receive_buf[3];
@@ -61,7 +61,7 @@ void QT_USB_set_serial_handler(QT_USB_Context *context, QSerialPort* serial_port
 extern "C" {
 #endif
 
-ENUM_J1939_STATUS_CODES QT_USB_Transmit(J1939 *j1939, uint32_t ID, uint8_t data[], uint8_t DLC);
+ENUM_J1939_STATUS_CODES QT_USB_Transmit(J1939 *j1939, uint32_t ID, const uint8_t data[], uint8_t DLC);
 void QT_USB_Get_ID_Data(J1939 *j1939, uint32_t *ID, uint8_t data[], bool* is_new_message);
 
 #ifdef __cplusplus

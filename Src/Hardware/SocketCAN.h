@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 int socketcan_receive(CAN_Context *context, uint32_t *ID, uint8_t data[], bool *is_new_message);
-int socketcan_transmit(CAN_Context *context, uint32_t ID, uint8_t data[], uint8_t DLC);
+int socketcan_transmit(CAN_Context *context, uint32_t ID, const uint8_t data[], uint8_t DLC);
 int socketcan_setup(CAN_Context *context, const char *ifname);
 void socketcan_close(CAN_Context *context);
 

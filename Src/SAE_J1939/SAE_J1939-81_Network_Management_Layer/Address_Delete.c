@@ -36,7 +36,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Address_Delete(J1939 *j1939, uint8_t DA, 
  * This is not a SAE J1939 standard. It's only for deleting the j1939->ECU_address
  * PGN: 0x000002 (2)
  */
-void SAE_J1939_Read_Address_Delete(J1939 *j1939, uint8_t data[]) {
+void SAE_J1939_Read_Address_Delete(J1939 *j1939, const uint8_t data[]) {
 	/* Delete other ECU address in this ECU */
 	uint8_t i, old_ECU_address = data[0];
 	for(i = 0; i < j1939->number_of_other_ECU; i++){

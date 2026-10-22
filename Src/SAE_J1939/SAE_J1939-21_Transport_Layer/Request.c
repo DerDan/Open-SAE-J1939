@@ -17,7 +17,7 @@
  * Read a PGN request from another ECU about PGN information at this ECU. All listed PGN should be here
  * PGN: 0x00EA00 (59904)
  */
-void SAE_J1939_Read_Request(J1939* j1939, uint8_t SA, uint8_t data[])
+void SAE_J1939_Read_Request(J1939* j1939, uint8_t SA, const uint8_t data[])
 {
     uint32_t PGN = ((uint32_t)data[2] << 16) | ((uint32_t)data[1] << 8) | data[0];
 

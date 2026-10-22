@@ -15,7 +15,7 @@
  * Send binary data transfer. This will be sent after DM15 memory response (if DM15 was proceeded)
  * PGN: 0x00D700 (55040)
  */
-ENUM_J1939_STATUS_CODES SAE_J1939_Send_Binary_Data_Transfer_DM16(J1939 *j1939, uint8_t DA, uint8_t number_of_occurences, uint8_t raw_binary_data[]) {
+ENUM_J1939_STATUS_CODES SAE_J1939_Send_Binary_Data_Transfer_DM16(J1939 *j1939, uint8_t DA, uint8_t number_of_occurences, const uint8_t raw_binary_data[]) {
 	if(number_of_occurences < 8) {
 		uint32_t ID = (0x18D7 << 16) | (DA << 8) | j1939->information_this_ECU.this_ECU_address;
 		uint8_t data[7 + 1];												/* number_of_occurences must be 7 */
@@ -56,7 +56,7 @@ ENUM_J1939_STATUS_CODES SAE_J1939_Send_Binary_Data_Transfer_DM16(J1939 *j1939, u
  * Read binary data transfer
  * PGN: 0x00D700 (55040)
  */
-void SAE_J1939_Read_Binary_Data_Transfer_DM16(J1939 *j1939, uint8_t SA, uint8_t data[]) {
+void SAE_J1939_Read_Binary_Data_Transfer_DM16(J1939 *j1939, uint8_t SA, const uint8_t data[]) {
 	j1939->from_other_ecu_dm.dm16.number_of_occurences = data[0];
 	j1939->from_other_ecu_dm.dm16.from_ecu_address = SA;
 	memset(j1939->from_other_ecu_dm.dm16.raw_binary_data, 0, sizeof(j1939->from_other_ecu_dm.dm16.raw_binary_data));

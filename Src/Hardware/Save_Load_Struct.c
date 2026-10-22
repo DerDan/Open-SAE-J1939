@@ -10,7 +10,7 @@
 /* Layers */
 #include <stdio.h>
 
-bool Save_Struct(uint8_t data[], uint32_t data_length, char file_name[]){
+bool Save_Struct(const uint8_t data[], uint32_t data_length, const char file_name[]){
 #if OPENSAE_J1939_TARGET_PLATFORM == STM32
 	/* Save it to SD card */
 	if(STM32_PLC_SD_Mont_Card() != FR_OK){
@@ -40,7 +40,7 @@ bool Save_Struct(uint8_t data[], uint32_t data_length, char file_name[]){
 #endif
 }
 
-bool Load_Struct(uint8_t data[], uint32_t data_length, char file_name[]){
+bool Load_Struct(uint8_t data[], uint32_t data_length, const char file_name[]){
 #if OPENSAE_J1939_TARGET_PLATFORM == STM32
 	/* Load it from SD card */
 	if(STM32_PLC_SD_Mont_Card() != FR_OK){

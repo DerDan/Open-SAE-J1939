@@ -16,6 +16,16 @@ add_executable(multiple_can_contexts multiple_can_contexts.c)
 target_link_libraries(multiple_can_contexts PRIVATE opensaej1939)
 add_test(NAME multiple_can_contexts COMMAND multiple_can_contexts)
 
+add_executable(const_contracts const_contracts.c)
+target_link_libraries(const_contracts PRIVATE opensaej1939)
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(const_contracts PRIVATE -Wall -Wextra -Werror -Wcast-qual)
+endif()
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/const_contracts_data")
+add_test(NAME const_contracts COMMAND const_contracts)
+set_tests_properties(const_contracts PROPERTIES
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/const_contracts_data")
+
 add_library(feedback_backend OBJECT ../Src/Hardware/CAN_Transmit_Receive.c)
 target_include_directories(feedback_backend PUBLIC ../Src)
 target_compile_definitions(feedback_backend PUBLIC OPENSAE_J1939_TARGET_PLATFORM=NO_PLATFORM
